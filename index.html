@@ -2,13 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Smart PJU | Dashboard Panel Modern</title>
+  <title>Smart PJU | Dashboard Panel Solid</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   
+  <!-- Leaflet Maps CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
@@ -28,6 +29,8 @@
       --bg-clouds: #e2e8f0;   
       --bg-rain: #bae6fd;     
       --bg-storm: #c7d2fe;    
+      --bg-fog: #f1f5f9;      
+      --bg-drizzle: #ccf1ff;  
     }
 
     * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -45,6 +48,7 @@
       letter-spacing: -0.02em;
     }
 
+    /* Layout Structure */
     .dashboard-wrapper {
       display: flex;
       flex-direction: column;
@@ -70,6 +74,7 @@
       position: relative;
     }
 
+    /* Sidebar Styling */
     .sidebar {
       width: 360px;
       background: var(--sidebar-bg);
@@ -77,12 +82,16 @@
       display: flex;
       flex-direction: column;
       z-index: 10;
+      transition: all 0.3s ease;
     }
 
     .sidebar-header {
       padding: 20px;
       border-bottom: 1px solid #f1f5f9;
       background: white;
+      position: sticky;
+      top: 0;
+      z-index: 20;
     }
 
     .search-wrapper {
@@ -98,6 +107,13 @@
       background: #f8fafc;
       font-size: 13px;
       outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
     .search-icon {
@@ -116,6 +132,7 @@
       background: #f8fafc;
     }
 
+    /* Map Area */
     .map-container {
       flex: 1;
       position: relative;
@@ -127,32 +144,9 @@
       flex: 1;
       width: 100%;
       z-index: 1;
-      cursor: crosshair;
     }
 
-    /* Fix Marker Styling */
-    .custom-marker {
-      background: transparent !important;
-      border: none !important;
-    }
-
-    .marker-inner {
-      background: white;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-      border: 2px solid white;
-      transition: transform 0.2s;
-    }
-
-    .marker-inner:hover {
-      transform: scale(1.2);
-    }
-
+    /* Stats on Map */
     .map-overlay-stats {
       position: absolute;
       top: 20px;
@@ -175,6 +169,7 @@
       flex-direction: column;
     }
 
+    /* UI Components */
     .brand h1 { margin: 0; font-size: 1.1rem; font-weight: 700; }
 
     .btn-primary {
@@ -186,11 +181,14 @@
       font-weight: 600;
       font-size: 12px;
       cursor: pointer;
+      transition: all 0.2s;
     }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
 
     .stat-label { font-size: 9px; color: var(--text-light); font-weight: 700; text-transform: uppercase; }
     .stat-value { font-size: 20px; font-weight: 700; color: var(--text-dark); }
 
+    /* Card Adjustments */
     .device-card {
       background: white;
       border-radius: var(--radius-md);
@@ -203,6 +201,7 @@
       overflow: hidden;
       margin-bottom: 16px;
     }
+    .device-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
 
     .bg-icon {
       position: absolute;
@@ -222,7 +221,7 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       flex-shrink: 0;
     }
-    .bulb-svg { width: 22px; height: 22px; fill: #94a3b8; }
+    .bulb-svg { width: 20px; height: 20px; fill: #cbd5e1; }
     .status-on .bulb-svg { fill: var(--warning); filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.4)); }
 
     .mode-toggle { display: flex; background: rgba(0,0,0,0.03); padding: 3px; border-radius: 10px; margin-bottom: 12px; z-index: 1; }
@@ -253,6 +252,11 @@
     .status-on .btn-main { background: var(--text-dark); color: white; border: none; }
     .btn-danger { background: #fee2e2; color: var(--danger); width: 38px; flex: none; display: flex; align-items: center; justify-content: center; }
 
+    .card-clear { background-color: var(--bg-clear); }
+    .card-clouds { background-color: var(--bg-clouds); }
+    .card-rain { background-color: var(--bg-rain); }
+    .card-thunderstorm { background-color: var(--bg-storm); }
+
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
     .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
     .form-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; margin-top: 6px; outline: none; font-size: 14px; }
@@ -262,8 +266,10 @@
 
     @media (max-width: 850px) {
       .main-content { flex-direction: column; overflow-y: auto; }
-      .sidebar { width: 100%; border-right: none; border-top: 1px solid #e2e8f0; order: 2; height: auto; }
-      .map-container { height: 400px; order: 1; flex: none; }
+      .sidebar { width: 100%; border-right: none; border-top: 1px solid #e2e8f0; height: auto; order: 2; overflow-y: visible; }
+      .map-container { height: 350px; order: 1; flex: none; }
+      .map-overlay-stats { top: 10px; left: 10px; right: 10px; }
+      .panel-list-container { overflow-y: visible; }
     }
   </style>
 </head>
@@ -279,6 +285,7 @@
   </nav>
 
   <div class="main-content">
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -298,14 +305,15 @@
       </div>
     </aside>
 
+    <!-- Map Area -->
     <main class="map-container">
       <div class="map-overlay-stats">
         <div class="stat-mini-card">
-          <span class="stat-label">Total Unit</span>
+          <span class="stat-label">Total</span>
           <span class="stat-value" id="count-total">0</span>
         </div>
         <div class="stat-mini-card">
-          <span class="stat-label" style="color: var(--warning)">Nyala</span>
+          <span class="stat-label" style="color: var(--warning)">Aktif</span>
           <span class="stat-value" id="count-on" style="color: var(--warning)">0</span>
         </div>
       </div>
@@ -314,15 +322,15 @@
   </div>
 </div>
 
-<!-- Modal Tambah Unit -->
+<!-- Modal Tambah -->
 <div class="modal-overlay" id="modalAdd">
   <div class="modal-content">
-    <h3 style="margin:0 0 8px 0;">Tambah Unit Baru</h3>
-    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Klik pada peta untuk lokasi presisi atau isi manual.</p>
+    <h3 style="margin:0 0 8px 0;">Tambah Unit PJU</h3>
+    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Klik titik di peta atau isi koordinat manual.</p>
     
     <div style="margin-bottom:16px">
-      <label style="font-size:10px; font-weight:800; color: var(--text-light);">NAMA PANEL</label>
-      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Lampu Taman Utara">
+      <label style="font-size:10px; font-weight:800; color: var(--text-light);">NAMA LOKASI</label>
+      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Lampu Blok A-01">
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px">
       <div>
@@ -341,6 +349,7 @@
 
 <div id="toast" class="toast">Pesan Sistem</div>
 
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script type="module">
@@ -362,32 +371,24 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const weatherKey = "2e87f812c1037ab6904d4b234b6158d7";
 
+let toastTimeout;
 let markers = {}; 
 let allPanelData = []; 
-const defaultCenter = [-7.4478, 112.7183]; // Sidoarjo
 
-// Setup Map
-const map = L.map('map', { zoomControl: false }).setView(defaultCenter, 13);
+// Map Setup - Default Sidoarjo
+const sidoarjoCoord = [-7.4478, 112.7183];
+const map = L.map('map', { zoomControl: false }).setView(sidoarjoCoord, 12); 
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
 L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+    attribution: '&copy; OpenStreetMap'
 }).addTo(map);
-
-// Ikon Lampu SVG
-const getMarkerHtml = (color) => `
-  <div class="marker-inner">
-    <svg style="width:18px; height:18px; fill:${color}" viewBox="0 0 24 24">
-      <path d="M12,2C8.14,2,5,5.14,5,9c0,2.38,1.19,4.47,3,5.74V17c0,0.55,0.45,1,1,1h6c0.55,0,1-0.45,1-1v-2.26c1.81-1.27,3-3.36,3-5.74 C19,5.14,15.86,2,12,2z M15,16H9v-1h6V16z M12,13.5c-2.48,0-4.5-2.02-4.5-4.5S9.52,4.5,12,4.5s4.5,2.02,4.5,4.5S14.48,13.5,12,13.5z"/>
-    </svg>
-  </div>
-`;
 
 map.on('click', function(e) {
     const { lat, lng } = e.latlng;
     document.getElementById('lat').value = lat.toFixed(6);
     document.getElementById('lon').value = lng.toFixed(6);
-    showToast("📍 Koordinat ditandai");
+    showToast("Koordinat dipilih");
     toggleModal(true); 
 });
 
@@ -395,17 +396,22 @@ const weatherConfigs = {
   'Clear': { label: 'Cerah', class: 'card-clear', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` },
   'Clouds': { label: 'Berawan', class: 'card-clouds', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>` },
   'Rain': { label: 'Hujan', class: 'card-rain', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 13v8M8 13v8M12 15v8M20 16.58A5 5 0 0 0 18 10h-1.26A8 8 0 1 0 4 15.25"/></svg>` },
-  'Thunderstorm': { label: 'Badai', class: 'card-thunderstorm', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg>` }
+  'Thunderstorm': { label: 'Badai', class: 'card-thunderstorm', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg>` },
+  'Mist': { label: 'Kabut', class: 'card-atmosphere', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="9" y1="16" x2="15" y2="16"/></svg>` }
 };
+
+const bulbSvg = `<svg class="bulb-svg" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>`;
 
 window.toggleModal = (s) => document.getElementById("modalAdd").style.display = s ? 'flex' : 'none';
 
 function showToast(m) {
   const t = document.getElementById("toast");
+  clearTimeout(toastTimeout);
   t.innerText = m; t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 3000);
+  toastTimeout = setTimeout(() => t.classList.remove("show"), 3000);
 }
 
+// Search Logic
 window.filterPanels = () => {
   const query = document.getElementById("searchInput").value.toLowerCase();
   const filtered = allPanelData.filter(p => 
@@ -421,11 +427,12 @@ window.kirimData = async function() {
   const lon = document.getElementById("lon").value;
   const btn = document.getElementById("btnSimpan");
 
-  if(!nama || !lat || !lon) return showToast("⚠️ Isi semua data!");
-  btn.innerText = "Menyimpan..."; btn.disabled = true;
+  if(!nama || !lat || !lon) return showToast("Mohon isi semua kolom!");
+  btn.innerText = "Proses..."; btn.disabled = true;
 
   try {
-    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherKey}&units=metric`);
+    const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherKey}&units=metric`;
+    const res = await fetch(weatherApiUrl);
     const data = await res.json();
 
     const snap = await get(ref(db, "panelPJU"));
@@ -451,14 +458,16 @@ window.kirimData = async function() {
     });
 
     toggleModal(false);
-    showToast(`✅ ${customID} disimpan`);
+    showToast(`${customID} terdaftar.`);
     document.getElementById("namaPanel").value = "";
-  } catch (e) { showToast("❌ Gagal menyimpan"); } 
+    document.getElementById("lat").value = "";
+    document.getElementById("lon").value = "";
+  } catch (e) { showToast("Gagal registrasi"); } 
   finally { btn.innerText = "Simpan Perangkat"; btn.disabled = false; }
 }
 
 window.togglePanel = (id, s) => { 
-  update(ref(db, "panelPJU/" + id), { status_panel: s, update_terakhir: "Manual" });
+  update(ref(db, "panelPJU/" + id), { status_panel: s, update_terakhir: "Manual Dashboard" });
 }
 
 window.setMode = (id, m) => {
@@ -466,13 +475,15 @@ window.setMode = (id, m) => {
 }
 
 window.hapus = (id) => { 
-  if(confirm(`Hapus unit ${id}?`)) {
+  if(confirm(`Hapus ${id}?`)) {
     if(markers[id]) map.removeLayer(markers[id]);
+    delete markers[id]; // Bersihkan referensi marker
     remove(ref(db, "panelPJU/" + id));
-    showToast("🗑️ Berhasil dihapus");
+    showToast("Dihapus.");
   }
 }
 
+// Side List Render
 function renderList(filteredData) {
   const list = document.getElementById("listData");
   const countLabel = document.getElementById("result-count");
@@ -480,7 +491,7 @@ function renderList(filteredData) {
   countLabel.innerText = `${filteredData.length} Unit`;
 
   if(filteredData.length === 0) {
-    list.innerHTML = `<div style="text-align: center; padding: 40px 10px; color: var(--text-light); font-size: 12px;">Data tidak ditemukan.</div>`;
+    list.innerHTML = `<div style="text-align: center; padding: 40px 10px; color: var(--text-light); font-size: 12px;">Tidak ada panel ditemukan.</div>`;
     return;
   }
 
@@ -494,9 +505,7 @@ function renderList(filteredData) {
     card.innerHTML = `
       ${visual.icon}
       <div class="device-header">
-        <div class="bulb-container">
-          <svg class="bulb-svg" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
-        </div>
+        <div class="bulb-container">${bulbSvg}</div>
         <div class="device-title">
           <h4>${val.nama_panel}</h4>
           <span class="id-tag">${id}</span>
@@ -506,19 +515,39 @@ function renderList(filteredData) {
         <button class="mode-btn ${isAuto ? 'active' : ''}" onclick="setMode('${id}', 'OTOMATIS')">OTOMATIS</button>
         <button class="mode-btn ${!isAuto ? 'active' : ''}" onclick="setMode('${id}', 'MANUAL')">MANUAL</button>
       </div>
-      <div class="coordinate-box" onclick="map.flyTo([${val.latitude}, ${val.longitude}], 18)" style="cursor:pointer">
+      <div class="coordinate-box" onclick="map.setView([${val.latitude}, ${val.longitude}], 18)" style="cursor:pointer" title="Lihat di peta">
         <span><b>LAT</b> ${val.latitude}</span>
         <span><b>LON</b> ${val.longitude}</span>
       </div>
+      
+      <!-- Grid Data Lengkap: Cuaca, Suhu, Visibility, Awan -->
       <div class="data-grid">
-        <div class="data-box"><span class="data-label">Cuaca</span><span class="data-value">${visual.label}</span></div>
-        <div class="data-box"><span class="data-label">Suhu</span><span class="data-value">${val.suhu || 0}°C</span></div>
+        <div class="data-box">
+          <span class="data-label">Cuaca</span>
+          <span class="data-value">${visual.label}</span>
+        </div>
+        <div class="data-box">
+          <span class="data-label">Suhu</span>
+          <span class="data-value">${val.suhu || 0}°C</span>
+        </div>
+        <div class="data-box">
+          <span class="data-label">Visibility</span>
+          <span class="data-value">${((val.jarak_pandang || 0) / 1000).toFixed(1)} km</span>
+        </div>
+        <div class="data-box">
+          <span class="data-label">Awan</span>
+          <span class="data-value">${val.awan || 0}%</span>
+        </div>
       </div>
+
       <div class="actions">
         <button class="btn btn-main" onclick="togglePanel('${id}','${isPanelOn ? 'MATI' : 'NYALA'}')" ${isAuto ? 'disabled' : ''}>
           ${isAuto ? 'ESP32 Control' : (isPanelOn ? 'Matikan' : 'Nyalakan')}
         </button>
         <button class="btn btn-danger" onclick="hapus('${id}')">✕</button>
+      </div>
+      <div style="margin-top:10px; text-align:center;">
+        <span style="font-size:8px; color:var(--text-light); font-weight:700;">Update: ${val.update_terakhir || '--:--'}</span>
       </div>
     `;
     list.appendChild(card);
@@ -526,7 +555,7 @@ function renderList(filteredData) {
 }
 
 onValue(ref(db, "panelPJU"), (snapshot) => {
-  document.getElementById("last-sync-time").innerText = "Sync: " + new Date().toLocaleTimeString();
+  document.getElementById("last-sync-time").innerText = "Sync: " + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
   if(!snapshot.exists()) {
     allPanelData = [];
@@ -534,15 +563,18 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
     updateStats(0, 0);
     Object.values(markers).forEach(m => map.removeLayer(m));
     markers = {};
-    map.setView(defaultCenter, 13);
+    // Fokus ke Sidoarjo jika tidak ada data
+    map.setView(sidoarjoCoord, 12);
     return;
   }
 
   const rawData = snapshot.val();
-  allPanelData = Object.entries(rawData).map(([id, val]) => ({ id, val }));
+  allPanelData = Object.entries(rawData).map(([id, val]) => ({ id, val }))
+    .sort((a,b) => parseInt(a.id.split(' ')[1]) - parseInt(b.id.split(' ')[1]));
 
   let total = 0, on = 0;
-  const points = [];
+  const bounds = L.latLngBounds();
+  let hasValidMarkers = false;
 
   allPanelData.forEach(({id, val}) => {
     const isPanelOn = val.status_panel === "NYALA";
@@ -552,34 +584,44 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
     const lon = parseFloat(val.longitude);
     
     if(!isNaN(lat) && !isNaN(lon)) {
-        points.push([lat, lon]);
         const markerColor = isPanelOn ? '#f59e0b' : '#94a3b8';
-        
         const customIcon = L.divIcon({
-            html: getMarkerHtml(markerColor),
+            html: `<div style="background: white; border-radius: 50%; padding: 4px; border: 2px solid ${markerColor}; box-shadow: 0 2px 5px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center;">
+                    <svg style="width:12px; height:12px; fill:${markerColor}" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+                   </div>`,
             className: 'custom-marker',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
         });
 
         if (markers[id]) {
-            markers[id].setLatLng([lat, lon]).setIcon(customIcon);
+            markers[id].setLatLng([lat, lon]);
+            markers[id].setIcon(customIcon);
         } else {
             markers[id] = L.marker([lat, lon], { icon: customIcon }).addTo(map);
         }
-        markers[id].bindPopup(`<b>${val.nama_panel}</b><br>ID: ${id}<br>Status: ${val.status_panel}`);
+        markers[id].bindPopup(`<b>${val.nama_panel}</b><br>Status: ${val.status_panel}`);
+        bounds.extend([lat, lon]);
+        hasValidMarkers = true;
     }
   });
 
   filterPanels();
   updateStats(total, on);
   
-  // Fitur Fokus Otomatis
-  if(points.length > 0) {
-      const bounds = L.latLngBounds(points);
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+  // LOGIKA AUTO ZOOM/FOCUS:
+  if (hasValidMarkers) {
+      // Jika hanya 1 marker, gunakan setView agar tidak terlalu zoom out/in
+      if (total === 1) {
+          const firstId = Object.keys(markers)[0];
+          map.setView(markers[firstId].getLatLng(), 15);
+      } else {
+          // Jika banyak marker, sesuaikan agar semua terlihat
+          map.fitBounds(bounds, { padding: [50, 50] }); 
+      }
   } else {
-      map.setView(defaultCenter, 13);
+      // Jika data ada tapi koordinat salah, default ke Sidoarjo
+      map.setView(sidoarjoCoord, 12);
   }
 });
 
