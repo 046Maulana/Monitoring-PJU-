@@ -77,16 +77,12 @@
       display: flex;
       flex-direction: column;
       z-index: 10;
-      transition: all 0.3s ease;
     }
 
     .sidebar-header {
       padding: 20px;
       border-bottom: 1px solid #f1f5f9;
       background: white;
-      position: sticky;
-      top: 0;
-      z-index: 20;
     }
 
     .search-wrapper {
@@ -131,7 +127,30 @@
       flex: 1;
       width: 100%;
       z-index: 1;
-      cursor: crosshair; /* Memberikan tanda visual bahwa peta bisa diklik */
+      cursor: crosshair;
+    }
+
+    /* Fix Marker Styling */
+    .custom-marker {
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .marker-inner {
+      background: white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      border: 2px solid white;
+      transition: transform 0.2s;
+    }
+
+    .marker-inner:hover {
+      transform: scale(1.2);
     }
 
     .map-overlay-stats {
@@ -203,7 +222,7 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       flex-shrink: 0;
     }
-    .bulb-svg { width: 20px; height: 20px; fill: #cbd5e1; }
+    .bulb-svg { width: 22px; height: 22px; fill: #94a3b8; }
     .status-on .bulb-svg { fill: var(--warning); filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.4)); }
 
     .mode-toggle { display: flex; background: rgba(0,0,0,0.03); padding: 3px; border-radius: 10px; margin-bottom: 12px; z-index: 1; }
@@ -234,11 +253,6 @@
     .status-on .btn-main { background: var(--text-dark); color: white; border: none; }
     .btn-danger { background: #fee2e2; color: var(--danger); width: 38px; flex: none; display: flex; align-items: center; justify-content: center; }
 
-    .card-clear { background-color: var(--bg-clear); }
-    .card-clouds { background-color: var(--bg-clouds); }
-    .card-rain { background-color: var(--bg-rain); }
-    .card-thunderstorm { background-color: var(--bg-storm); }
-
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
     .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
     .form-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; margin-top: 6px; outline: none; font-size: 14px; }
@@ -248,8 +262,8 @@
 
     @media (max-width: 850px) {
       .main-content { flex-direction: column; overflow-y: auto; }
-      .sidebar { width: 100%; border-right: none; border-top: 1px solid #e2e8f0; height: auto; order: 2; }
-      .map-container { height: 350px; order: 1; flex: none; }
+      .sidebar { width: 100%; border-right: none; border-top: 1px solid #e2e8f0; order: 2; height: auto; }
+      .map-container { height: 400px; order: 1; flex: none; }
     }
   </style>
 </head>
@@ -291,7 +305,7 @@
           <span class="stat-value" id="count-total">0</span>
         </div>
         <div class="stat-mini-card">
-          <span class="stat-label" style="color: var(--warning)">Lampu Nyala</span>
+          <span class="stat-label" style="color: var(--warning)">Nyala</span>
           <span class="stat-value" id="count-on" style="color: var(--warning)">0</span>
         </div>
       </div>
@@ -300,14 +314,15 @@
   </div>
 </div>
 
+<!-- Modal Tambah Unit -->
 <div class="modal-overlay" id="modalAdd">
   <div class="modal-content">
-    <h3 style="margin:0 0 8px 0;">Registrasi Unit PJU</h3>
-    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Silahkan klik area pada peta untuk mengambil koordinat otomatis atau isi manual.</p>
+    <h3 style="margin:0 0 8px 0;">Tambah Unit Baru</h3>
+    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Klik pada peta untuk lokasi presisi atau isi manual.</p>
     
     <div style="margin-bottom:16px">
-      <label style="font-size:10px; font-weight:800; color: var(--text-light);">NAMA LOKASI</label>
-      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Lampu Depan Gapura">
+      <label style="font-size:10px; font-weight:800; color: var(--text-light);">NAMA PANEL</label>
+      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Lampu Taman Utara">
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px">
       <div>
@@ -319,8 +334,8 @@
         <input type="text" id="lon" class="form-input" placeholder="112.xxx">
       </div>
     </div>
-    <button class="btn-primary" style="width:100%; padding: 14px;" id="btnSimpan" onclick="kirimData()">Daftarkan Unit</button>
-    <button onclick="toggleModal(false)" style="width:100%; border:none; background:none; margin-top:12px; color:var(--text-light); font-size: 12px; cursor:pointer">Batalkan</button>
+    <button class="btn-primary" style="width:100%; padding: 14px;" id="btnSimpan" onclick="kirimData()">Simpan Perangkat</button>
+    <button onclick="toggleModal(false)" style="width:100%; border:none; background:none; margin-top:12px; color:var(--text-light); font-size: 12px; cursor:pointer">Batal</button>
   </div>
 </div>
 
@@ -351,19 +366,28 @@ let markers = {};
 let allPanelData = []; 
 const defaultCenter = [-7.4478, 112.7183]; // Sidoarjo
 
+// Setup Map
 const map = L.map('map', { zoomControl: false }).setView(defaultCenter, 13);
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
 L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+    attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-// Fitur klik peta untuk ambil koordinat
+// Ikon Lampu SVG
+const getMarkerHtml = (color) => `
+  <div class="marker-inner">
+    <svg style="width:18px; height:18px; fill:${color}" viewBox="0 0 24 24">
+      <path d="M12,2C8.14,2,5,5.14,5,9c0,2.38,1.19,4.47,3,5.74V17c0,0.55,0.45,1,1,1h6c0.55,0,1-0.45,1-1v-2.26c1.81-1.27,3-3.36,3-5.74 C19,5.14,15.86,2,12,2z M15,16H9v-1h6V16z M12,13.5c-2.48,0-4.5-2.02-4.5-4.5S9.52,4.5,12,4.5s4.5,2.02,4.5,4.5S14.48,13.5,12,13.5z"/>
+    </svg>
+  </div>
+`;
+
 map.on('click', function(e) {
     const { lat, lng } = e.latlng;
     document.getElementById('lat').value = lat.toFixed(6);
     document.getElementById('lon').value = lng.toFixed(6);
-    showToast("📍 Lokasi dipilih");
+    showToast("📍 Koordinat ditandai");
     toggleModal(true); 
 });
 
@@ -373,8 +397,6 @@ const weatherConfigs = {
   'Rain': { label: 'Hujan', class: 'card-rain', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 13v8M8 13v8M12 15v8M20 16.58A5 5 0 0 0 18 10h-1.26A8 8 0 1 0 4 15.25"/></svg>` },
   'Thunderstorm': { label: 'Badai', class: 'card-thunderstorm', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg>` }
 };
-
-const bulbSvg = `<svg class="bulb-svg" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>`;
 
 window.toggleModal = (s) => document.getElementById("modalAdd").style.display = s ? 'flex' : 'none';
 
@@ -400,7 +422,7 @@ window.kirimData = async function() {
   const btn = document.getElementById("btnSimpan");
 
   if(!nama || !lat || !lon) return showToast("⚠️ Isi semua data!");
-  btn.innerText = "Mendaftarkan..."; btn.disabled = true;
+  btn.innerText = "Menyimpan..."; btn.disabled = true;
 
   try {
     const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherKey}&units=metric`);
@@ -429,14 +451,14 @@ window.kirimData = async function() {
     });
 
     toggleModal(false);
-    showToast(`✅ Berhasil: ${customID}`);
+    showToast(`✅ ${customID} disimpan`);
     document.getElementById("namaPanel").value = "";
-  } catch (e) { showToast("❌ Gagal simpan"); } 
-  finally { btn.innerText = "Daftarkan Unit"; btn.disabled = false; }
+  } catch (e) { showToast("❌ Gagal menyimpan"); } 
+  finally { btn.innerText = "Simpan Perangkat"; btn.disabled = false; }
 }
 
 window.togglePanel = (id, s) => { 
-  update(ref(db, "panelPJU/" + id), { status_panel: s, update_terakhir: "Update Manual" });
+  update(ref(db, "panelPJU/" + id), { status_panel: s, update_terakhir: "Manual" });
 }
 
 window.setMode = (id, m) => {
@@ -447,7 +469,7 @@ window.hapus = (id) => {
   if(confirm(`Hapus unit ${id}?`)) {
     if(markers[id]) map.removeLayer(markers[id]);
     remove(ref(db, "panelPJU/" + id));
-    showToast("🗑️ Unit dihapus");
+    showToast("🗑️ Berhasil dihapus");
   }
 }
 
@@ -472,7 +494,9 @@ function renderList(filteredData) {
     card.innerHTML = `
       ${visual.icon}
       <div class="device-header">
-        <div class="bulb-container">${bulbSvg}</div>
+        <div class="bulb-container">
+          <svg class="bulb-svg" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+        </div>
         <div class="device-title">
           <h4>${val.nama_panel}</h4>
           <span class="id-tag">${id}</span>
@@ -489,12 +513,10 @@ function renderList(filteredData) {
       <div class="data-grid">
         <div class="data-box"><span class="data-label">Cuaca</span><span class="data-value">${visual.label}</span></div>
         <div class="data-box"><span class="data-label">Suhu</span><span class="data-value">${val.suhu || 0}°C</span></div>
-        <div class="data-box"><span class="data-label">Jarak Pandang</span><span class="data-value">${((val.jarak_pandang || 0) / 1000).toFixed(1)} km</span></div>
-        <div class="data-box"><span class="data-label">Awan</span><span class="data-value">${val.awan || 0}%</span></div>
       </div>
       <div class="actions">
         <button class="btn btn-main" onclick="togglePanel('${id}','${isPanelOn ? 'MATI' : 'NYALA'}')" ${isAuto ? 'disabled' : ''}>
-          ${isAuto ? 'Sistem Otomatis' : (isPanelOn ? 'Matikan' : 'Nyalakan')}
+          ${isAuto ? 'ESP32 Control' : (isPanelOn ? 'Matikan' : 'Nyalakan')}
         </button>
         <button class="btn btn-danger" onclick="hapus('${id}')">✕</button>
       </div>
@@ -511,6 +533,7 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
     renderList([]);
     updateStats(0, 0);
     Object.values(markers).forEach(m => map.removeLayer(m));
+    markers = {};
     map.setView(defaultCenter, 13);
     return;
   }
@@ -531,13 +554,12 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
     if(!isNaN(lat) && !isNaN(lon)) {
         points.push([lat, lon]);
         const markerColor = isPanelOn ? '#f59e0b' : '#94a3b8';
+        
         const customIcon = L.divIcon({
-            html: `<div style="background: white; border-radius: 50%; padding: 4px; border: 2px solid ${markerColor}; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center;">
-                    <svg style="width:14px; height:14px; fill:${markerColor}" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                   </div>`,
+            html: getMarkerHtml(markerColor),
             className: 'custom-marker',
-            iconSize: [26, 26],
-            iconAnchor: [13, 13]
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
         });
 
         if (markers[id]) {
@@ -552,7 +574,7 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
   filterPanels();
   updateStats(total, on);
   
-  // LOGIKA FOKUS MAPS:
+  // Fitur Fokus Otomatis
   if(points.length > 0) {
       const bounds = L.latLngBounds(points);
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
