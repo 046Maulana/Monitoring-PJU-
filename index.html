@@ -16,6 +16,7 @@
     :root {
       --primary: #6366f1;
       --background: #f4f7f9;
+      --sidebar-bg: #ffffff;
       --text-dark: #0f172a;
       --text-muted: #475569;
       --text-light: #64748b;
@@ -39,7 +40,7 @@
       font-family: 'Inter', sans-serif;
       background-color: var(--background);
       color: var(--text-dark);
-      padding-bottom: 100px;
+      overflow-x: hidden;
     }
 
     h1, h2, h3, h4, .stat-value {
@@ -47,284 +48,304 @@
       letter-spacing: -0.02em;
     }
 
+    /* Layout Structure */
+    .dashboard-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
     .nav-bar {
       background: white;
       border-bottom: 1px solid #e2e8f0;
-      padding: 16px 24px;
-      position: sticky;
-      top: 0;
+      padding: 12px 24px;
       z-index: 1000;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      flex-shrink: 0;
     }
 
-    .brand h1 { margin: 0; font-size: 1.25rem; font-weight: 700; }
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 360px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid #f1f5f9;
+      background: white;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .search-wrapper {
+      position: relative;
+      margin-top: 12px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      pointer-events: none;
+    }
+
+    .panel-list-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f8fafc;
+    }
+
+    /* Map Area */
+    .map-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #map {
+      flex: 1;
+      width: 100%;
+      z-index: 1;
+    }
+
+    /* Stats on Map */
+    .map-overlay-stats {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      z-index: 500;
+      pointer-events: none;
+      display: flex;
+      gap: 12px;
+    }
+
+    .stat-mini-card {
+      background: white;
+      padding: 12px 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      pointer-events: auto;
+      border: 1px solid rgba(255,255,255,0.8);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* UI Components */
+    .brand h1 { margin: 0; font-size: 1.1rem; font-weight: 700; }
 
     .btn-primary {
       background: var(--text-dark);
       color: white;
       border: none;
-      padding: 12px 20px;
-      border-radius: 12px;
+      padding: 10px 16px;
+      border-radius: 10px;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
       transition: all 0.2s;
     }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
 
-    .container { max-width: 1200px; margin: 24px auto; padding: 0 20px; }
+    .stat-label { font-size: 9px; color: var(--text-light); font-weight: 700; text-transform: uppercase; }
+    .stat-value { font-size: 20px; font-weight: 700; color: var(--text-dark); }
 
-    /* Map Styling - Disesuaikan agar lebih compact untuk mobile */
-    #map {
-      width: 100%;
-      height: 250px; /* Diperkecil dari 400px agar tidak lag dan pas di layar mobile */
-      border-radius: var(--radius-lg);
-      margin-bottom: 24px;
-      border: 4px solid white;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
-      z-index: 1;
-    }
-
-    .stats-overview { 
-      display: grid;
-      grid-template-columns: repeat(2, 1fr); /* Tetap 2 kolom di mobile agar rapi */
-      gap: 16px; 
-      margin-bottom: 24px; 
-    }
-    .stat-card {
-      background: white;
-      padding: 20px;
-      border-radius: var(--radius-md);
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    }
-    .stat-label { 
-      font-size: 10px; 
-      color: var(--text-light); 
-      font-weight: 700; 
-      text-transform: uppercase; 
-      display: block; 
-      margin-bottom: 6px; 
-    }
-    .stat-value { font-size: 24px; font-weight: 700; color: var(--text-dark); }
-
-    .panel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
+    /* Card Adjustments for Sidebar */
     .device-card {
-      border-radius: var(--radius-lg);
-      padding: 24px;
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 18px;
       display: flex;
       flex-direction: column;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(0,0,0,0.05);
+      transition: all 0.2s ease;
+      border: 1px solid #e2e8f0;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
     }
-    .device-card:hover { transform: translateY(-4px); }
+    .device-card:hover { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
 
     .bg-icon {
       position: absolute;
-      top: -15px; right: -15px;
-      width: 110px; height: 110px;
-      opacity: 0.15; z-index: 0;
-      pointer-events: none;
+      top: -10px; right: -10px;
+      width: 80px; height: 80px;
+      opacity: 0.1; z-index: 0;
     }
 
-    .card-clear { background-color: var(--bg-clear); border-color: #fcd34d; }
-    .card-clouds { background-color: var(--bg-clouds); border-color: #cbd5e1; }
-    .card-rain { background-color: var(--bg-rain); border-color: #7dd3fc; }
-    .card-drizzle { background-color: var(--bg-drizzle); border-color: #a5f3fc; }
-    .card-thunderstorm { background-color: var(--bg-storm); border-color: #a5b4fc; }
-    .card-atmosphere { background-color: var(--bg-fog); border-color: #e2e8f0; }
-
-    .device-header { margin-bottom: 20px; display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
-    .device-title h4 { margin: 0; font-size: 18px; font-weight: 700; }
-    .id-tag { 
-      color: var(--text-muted); 
-      font-size: 10px; 
-      font-weight: 700; 
-      background: rgba(255,255,255,0.6);
-      padding: 2px 6px;
-      border-radius: 6px;
-      margin-top: 4px;
-      display: inline-block;
-      font-family: monospace;
-    }
+    .device-header { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+    .device-title h4 { margin: 0; font-size: 15px; font-weight: 700; }
+    .id-tag { color: var(--text-muted); font-size: 9px; font-weight: 700; background: rgba(255,255,255,0.6); padding: 2px 6px; border-radius: 4px; margin-top: 2px; display: inline-block; }
 
     .bulb-container {
-      width: 48px; height: 48px;
+      width: 40px; height: 40px;
       display: flex; align-items: center; justify-content: center;
-      background: white; border-radius: 14px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-      flex-shrink: 0; border: 1px solid rgba(0,0,0,0.05);
-    }
-    .bulb-svg { width: 24px; height: 24px; fill: #cbd5e1; transition: all 0.3s ease; }
-    .status-on .bulb-svg { fill: var(--warning); filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6)); }
-
-    .mode-toggle {
-      display: flex;
-      background: rgba(255,255,255,0.5);
-      padding: 4px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      position: relative;
-      z-index: 1;
-      border: 1px solid rgba(0,0,0,0.05);
-    }
-    .mode-btn {
-      flex: 1;
-      border: none;
-      padding: 8px;
-      font-size: 10px;
-      font-weight: 800;
-      border-radius: 8px;
-      cursor: pointer;
-      background: transparent;
-      color: var(--text-light);
-      transition: all 0.2s;
-    }
-    .mode-btn.active {
-      background: white;
-      color: var(--text-dark);
+      background: white; border-radius: 10px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      flex-shrink: 0;
     }
+    .bulb-svg { width: 20px; height: 20px; fill: #cbd5e1; }
+    .status-on .bulb-svg { fill: var(--warning); filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.4)); }
+
+    .mode-toggle { display: flex; background: rgba(0,0,0,0.03); padding: 3px; border-radius: 10px; margin-bottom: 12px; z-index: 1; }
+    .mode-btn { flex: 1; border: none; padding: 6px; font-size: 9px; font-weight: 800; border-radius: 7px; cursor: pointer; background: transparent; color: var(--text-light); }
+    .mode-btn.active { background: white; color: var(--text-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
     .coordinate-box {
-      background: rgba(255, 255, 255, 0.7);
-      padding: 10px 14px;
-      border-radius: 12px;
-      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 8px 10px;
+      border-radius: 10px;
+      margin-bottom: 12px;
       font-family: monospace;
-      font-size: 10px;
+      font-size: 9px;
       display: flex;
       justify-content: space-between;
-      position: relative;
       z-index: 1;
-      border: 1px solid rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.03);
     }
 
-    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; position: relative; z-index: 1; }
-    .data-box { background: white; padding: 12px; border-radius: 14px; border: 1px solid rgba(0,0,0,0.05); }
-    .data-label { display: block; font-size: 9px; font-weight: 700; color: var(--text-light); text-transform: uppercase; margin-bottom: 4px; }
-    .data-value { font-weight: 700; font-size: 14px; }
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; z-index: 1; }
+    .data-box { background: white; padding: 8px; border-radius: 10px; border: 1px solid #f1f5f9; }
+    .data-label { display: block; font-size: 8px; font-weight: 700; color: var(--text-light); text-transform: uppercase; }
+    .data-value { font-weight: 700; font-size: 12px; }
 
-    .actions { display: flex; gap: 10px; position: relative; z-index: 1; }
-    .btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.2s; }
-    .btn-main { background: white; border: 1px solid #cbd5e1; }
+    .actions { display: flex; gap: 8px; z-index: 1; }
+    .btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 700; font-size: 11px; cursor: pointer; }
+    .btn-main { background: #f1f5f9; border: 1px solid #e2e8f0; }
     .status-on .btn-main { background: var(--text-dark); color: white; border: none; }
-    .btn-main:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border: none; }
+    .btn-danger { background: #fee2e2; color: var(--danger); width: 38px; flex: none; display: flex; align-items: center; justify-content: center; }
+
+    .card-clear { background-color: var(--bg-clear); }
+    .card-clouds { background-color: var(--bg-clouds); }
+    .card-rain { background-color: var(--bg-rain); }
+    .card-thunderstorm { background-color: var(--bg-storm); }
+
+    /* Modals & Toast */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+    .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    .form-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; margin-top: 6px; outline: none; font-size: 14px; }
     
-    .btn-danger { background: white; color: #94a3b8; width: 44px; flex: none; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; }
-    .btn-danger:hover { color: var(--danger); background: #fef2f2; }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-dark); color: white; padding: 12px 24px; border-radius: 12px; font-size: 13px; font-weight: 600; transition: all 0.3s; z-index: 3000; opacity: 0; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-    .footer-sync {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: white; padding: 12px 20px;
-      border-top: 1px solid #e2e8f0;
-      display: flex; justify-content: center; align-items: center;
-      z-index: 99;
-    }
-    .sync-text { font-size: 11px; font-weight: 600; color: var(--text-light); }
-
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(15, 23, 42, 0.4);
-      backdrop-filter: blur(8px);
-      display: none; align-items: center; justify-content: center;
-      z-index: 2000;
-    }
-    .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 24px; padding: 24px; }
-    .form-input { 
-      width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; 
-      margin-top: 6px; outline: none; font-size: 14px; transition: border-color 0.2s;
-    }
-
-    .toast {
-      position: fixed; bottom: 70px; left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--text-dark); color: white;
-      padding: 12px 24px; border-radius: 12px;
-      font-size: 13px; font-weight: 600; 
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
-      z-index: 3000; opacity: 0; pointer-events: none;
-    }
-    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
-    
-    @media (min-width: 768px) {
-      #map { height: 350px; }
-      .stat-value { font-size: 32px; }
-      .stats-overview { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    /* Mobile Responsive Logic */
+    @media (max-width: 850px) {
+      .main-content { flex-direction: column; overflow-y: auto; }
+      .sidebar { width: 100%; border-right: none; border-top: 1px solid #e2e8f0; height: auto; order: 2; overflow-y: visible; }
+      .map-container { height: 300px; order: 1; flex: none; }
+      .map-overlay-stats { top: 10px; left: 10px; right: 10px; }
+      .panel-list-container { overflow-y: visible; }
     }
   </style>
 </head>
 <body>
 
-<nav class="nav-bar">
-  <div class="brand"><h1>PJU Monitoring</h1></div>
-  <div>
-    <button class="btn-primary" onclick="toggleModal(true)">+ Tambah</button>
-  </div>
-</nav>
-
-<div class="container">
-  <!-- Status Utama -->
-  <div class="stats-overview">
-    <div class="stat-card">
-      <span class="stat-label">Total Panel</span>
-      <span class="stat-value" id="count-total">0</span>
+<div class="dashboard-wrapper">
+  <nav class="nav-bar">
+    <div class="brand"><h1>Smart PJU Monitoring</h1></div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <span id="last-sync-time" style="font-size: 10px; color: var(--text-light); font-weight: 600; margin-right: 10px;">Sync: --:--</span>
+      <button class="btn-primary" onclick="toggleModal(true)">+ Unit Baru</button>
     </div>
-    <div class="stat-card">
-      <span class="stat-label">Lampu Aktif</span>
-      <span class="stat-value" id="count-on" style="color: var(--warning)">0</span>
-    </div>
-  </div>
+  </nav>
 
-  <!-- Peta Monitoring - Compact Height -->
-  <div id="map"></div>
+  <div class="main-content">
+    <!-- Sidebar Kiri: Daftar & Filter -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="margin: 0; font-size: 14px; color: var(--text-muted);">Daftar Panel</h3>
+          <span id="result-count" style="font-size: 10px; font-weight: 800; color: var(--primary); background: #eef2ff; padding: 2px 8px; border-radius: 10px;">0 Unit</span>
+        </div>
+        <div class="search-wrapper">
+          <svg class="search-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Cari nama atau ID panel..." oninput="filterPanels()">
+        </div>
+      </div>
+      
+      <div class="panel-list-container" id="listData">
+        <div style="text-align: center; padding: 40px 20px; color: var(--text-light);">
+          <p style="font-size: 12px;">Menghubungkan ke server...</p>
+        </div>
+      </div>
+    </aside>
 
-  <!-- List Panel -->
-  <div class="panel-grid" id="listData">
-    <div style="grid-column: 1 / -1; text-align: center; padding: 80px 0; color: var(--text-light);">
-       <p style="font-weight: 600;">Memuat data dari Firebase...</p>
-    </div>
+    <!-- Area Tengah/Utama: Map -->
+    <main class="map-container">
+      <div class="map-overlay-stats">
+        <div class="stat-mini-card">
+          <span class="stat-label">Total</span>
+          <span class="stat-value" id="count-total">0</span>
+        </div>
+        <div class="stat-mini-card">
+          <span class="stat-label" style="color: var(--warning)">Aktif</span>
+          <span class="stat-value" id="count-on" style="color: var(--warning)">0</span>
+        </div>
+      </div>
+      <div id="map"></div>
+    </main>
   </div>
 </div>
 
-<div class="footer-sync">
-  <div class="sync-text">Sistem Monitoring Aktif • <span id="last-sync-time">--:--</span></div>
-</div>
-
-<!-- Modal Tambah Panel -->
+<!-- Modal Tambah -->
 <div class="modal-overlay" id="modalAdd">
   <div class="modal-content">
-    <h3 style="margin:0 0 12px 0;">Registrasi Panel Baru</h3>
-    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Anda juga bisa klik pada peta untuk koordinat otomatis.</p>
+    <h3 style="margin:0 0 8px 0;">Tambah Unit PJU</h3>
+    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Isi detail lokasi secara manual atau klik titik di peta.</p>
     
     <div style="margin-bottom:16px">
-      <label style="font-size:10px; font-weight:800; color: var(--text-light);">NAMA / LOKASI UNIT</label>
-      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Lampu Blok A-01">
+      <label style="font-size:10px; font-weight:800; color: var(--text-light);">NAMA LOKASI</label>
+      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Jl. Ahmad Yani - 01">
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px">
       <div>
         <label style="font-size:10px; font-weight:800; color: var(--text-light);">LATITUDE</label>
-        <input type="text" id="lat" class="form-input" placeholder="-7.345">
+        <input type="text" id="lat" class="form-input" placeholder="-7.xxx">
       </div>
       <div>
         <label style="font-size:10px; font-weight:800; color: var(--text-light);">LONGITUDE</label>
-        <input type="text" id="lon" class="form-input" placeholder="112.789">
+        <input type="text" id="lon" class="form-input" placeholder="112.xxx">
       </div>
     </div>
-    <button class="btn-primary" style="width:100%; padding: 16px;" id="btnSimpan" onclick="kirimData()">Simpan Perangkat</button>
-    <button onclick="toggleModal(false)" style="width:100%; border:none; background:none; margin-top:12px; color:var(--text-light); font-size: 13px; cursor:pointer">Batal</button>
+    <button class="btn-primary" style="width:100%; padding: 14px;" id="btnSimpan" onclick="kirimData()">Simpan Perangkat</button>
+    <button onclick="toggleModal(false)" style="width:100%; border:none; background:none; margin-top:12px; color:var(--text-light); font-size: 12px; cursor:pointer">Batalkan</button>
   </div>
 </div>
 
@@ -354,18 +375,21 @@ const weatherKey = "2e87f812c1037ab6904d4b234b6158d7";
 
 let toastTimeout;
 let markers = {}; 
+let allPanelData = []; // Simpan data global untuk filter
 
-// Inisialisasi Peta - Sidoarjo
-const map = L.map('map').setView([-7.4478, 112.7183], 12); 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+// Map Init
+const map = L.map('map', { zoomControl: false }).setView([-7.4478, 112.7183], 12); 
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OSM'
 }).addTo(map);
 
 map.on('click', function(e) {
     const { lat, lng } = e.latlng;
     document.getElementById('lat').value = lat.toFixed(6);
     document.getElementById('lon').value = lng.toFixed(6);
-    showToast("Koordinat diambil dari peta");
+    showToast("Koordinat disalin dari peta");
     toggleModal(true); 
 });
 
@@ -384,10 +408,18 @@ window.toggleModal = (s) => document.getElementById("modalAdd").style.display = 
 function showToast(m) {
   const t = document.getElementById("toast");
   clearTimeout(toastTimeout);
-  t.innerText = m; 
-  t.classList.add("show");
+  t.innerText = m; t.classList.add("show");
   toastTimeout = setTimeout(() => t.classList.remove("show"), 3000);
 }
+
+// Global Filter Function
+window.filterPanels = () => {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  renderList(allPanelData.filter(p => 
+    p.val.nama_panel.toLowerCase().includes(query) || 
+    p.id.toLowerCase().includes(query)
+  ));
+};
 
 window.kirimData = async function() {
   const nama = document.getElementById("namaPanel").value;
@@ -395,32 +427,28 @@ window.kirimData = async function() {
   const lon = document.getElementById("lon").value;
   const btn = document.getElementById("btnSimpan");
 
-  if(!nama || !lat || !lon) return showToast("Mohon isi semua kolom!");
-  btn.innerText = "Proses...";
+  if(!nama || !lat || !lon) return showToast("Lengkapi data!");
+  btn.innerText = "Menyimpan...";
   btn.disabled = true;
 
   try {
     const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherKey}&units=metric`;
     const res = await fetch(weatherApiUrl);
-    if (!res.ok) throw new Error("Gagal ambil data cuaca");
     const data = await res.json();
 
     const snap = await get(ref(db, "panelPJU"));
     let nextNum = 1;
     if(snap.exists()) {
-      const keys = Object.keys(snap.val());
-      const nums = keys.map(k => parseInt(k.replace("PJU ","")) || 0);
+      const nums = Object.keys(snap.val()).map(k => parseInt(k.replace("PJU ","")) || 0);
       nextNum = nums.length > 0 ? Math.max(...nums) + 1 : 1;
     }
 
     const customID = `PJU ${nextNum}`;
-    
     await set(ref(db, "panelPJU/" + customID), {
       id_panel: customID,
       nama_panel: nama, 
       latitude: parseFloat(lat), 
       longitude: parseFloat(lon),
-      weather_api_link: weatherApiUrl, 
       cuaca: data.weather?.[0]?.main || 'Clear',
       suhu: Math.round(data.main?.temp || 0),
       jarak_pandang: data.visibility || 0,
@@ -435,68 +463,98 @@ window.kirimData = async function() {
     document.getElementById("namaPanel").value = "";
     document.getElementById("lat").value = "";
     document.getElementById("lon").value = "";
-  } catch (e) { 
-    showToast("Gagal: " + e.message); 
-  } finally { 
-    btn.innerText = "Simpan Perangkat"; btn.disabled = false; 
-  }
+  } catch (e) { showToast("Gagal simpan data"); } 
+  finally { btn.innerText = "Simpan Perangkat"; btn.disabled = false; }
 }
 
 window.togglePanel = (id, s) => { 
-  update(ref(db, "panelPJU/" + id), { 
-    status_panel: s, 
-    update_terakhir: "Manual Dashboard" 
-  });
-  showToast(`${id} : ${s}`);
+  update(ref(db, "panelPJU/" + id), { status_panel: s, update_terakhir: "Manual Dashboard" });
 }
 
 window.setMode = (id, m) => {
-  update(ref(db, "panelPJU/" + id), { 
-    mode: m,
-    update_terakhir: `Mode: ${m}` 
-  });
-  showToast(`${id} Mode ${m}`);
+  update(ref(db, "panelPJU/" + id), { mode: m, update_terakhir: `Mode: ${m}` });
 }
 
 window.hapus = (id) => { 
   if(confirm(`Hapus ${id}?`)) {
-    if(markers[id]) {
-        map.removeLayer(markers[id]);
-        delete markers[id];
-    }
+    if(markers[id]) map.removeLayer(markers[id]);
     remove(ref(db, "panelPJU/" + id));
-    showToast(`${id} Dihapus.`);
+    showToast("Dihapus.");
   }
 }
 
-onValue(ref(db, "panelPJU"), (snapshot) => {
+// Render the side list
+function renderList(filteredData) {
   const list = document.getElementById("listData");
-  document.getElementById("last-sync-time").innerText = "Update: " + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const countLabel = document.getElementById("result-count");
+  list.innerHTML = "";
+  countLabel.innerText = `${filteredData.length} Unit`;
 
-  if(!snapshot.exists()) {
-    list.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 100px 0; color: var(--text-light);">Belum ada data panel.</div>`;
-    updateStats(0, 0);
-    Object.values(markers).forEach(m => map.removeLayer(m));
-    markers = {};
+  if(filteredData.length === 0) {
+    list.innerHTML = `<div style="text-align: center; padding: 40px 10px; color: var(--text-light); font-size: 12px;">Data tidak ditemukan.</div>`;
     return;
   }
 
-  list.innerHTML = "";
-  let total = 0, on = 0;
-  
-  const entries = Object.entries(snapshot.val()).sort((a,b) => {
-    return parseInt(a[0].split(' ')[1]) - parseInt(b[0].split(' ')[1]);
-  });
-
-  const bounds = L.latLngBounds();
-
-  entries.forEach(([id, val]) => {
+  filteredData.forEach(({id, val}) => {
     const isPanelOn = val.status_panel === "NYALA";
     const isAuto = val.mode === "OTOMATIS";
     const visual = weatherConfigs[val.cuaca] || weatherConfigs['Clouds'];
     
-    total++; 
-    if(isPanelOn) on++; 
+    const card = document.createElement("div");
+    card.className = `device-card ${visual.class} ${isPanelOn ? 'status-on' : ''}`;
+    card.innerHTML = `
+      ${visual.icon}
+      <div class="device-header">
+        <div class="bulb-container">${bulbSvg}</div>
+        <div class="device-title">
+          <h4>${val.nama_panel}</h4>
+          <span class="id-tag">${id}</span>
+        </div>
+      </div>
+      <div class="mode-toggle">
+        <button class="mode-btn ${isAuto ? 'active' : ''}" onclick="setMode('${id}', 'OTOMATIS')">OTOMATIS</button>
+        <button class="mode-btn ${!isAuto ? 'active' : ''}" onclick="setMode('${id}', 'MANUAL')">MANUAL</button>
+      </div>
+      <div class="coordinate-box" onclick="map.setView([${val.latitude}, ${val.longitude}], 18)" style="cursor:pointer">
+        <span><b>LAT</b> ${val.latitude}</span>
+        <span><b>LON</b> ${val.longitude}</span>
+      </div>
+      <div class="data-grid">
+        <div class="data-box"><span class="data-label">Cuaca</span><span class="data-value">${visual.label}</span></div>
+        <div class="data-box"><span class="data-label">Suhu</span><span class="data-value">${val.suhu || 0}°C</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-main" onclick="togglePanel('${id}','${isPanelOn ? 'MATI' : 'NYALA'}')" ${isAuto ? 'disabled' : ''}>
+          ${isAuto ? 'ESP32 Control' : (isPanelOn ? 'Matikan' : 'Nyalakan')}
+        </button>
+        <button class="btn btn-danger" onclick="hapus('${id}')">✕</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+onValue(ref(db, "panelPJU"), (snapshot) => {
+  document.getElementById("last-sync-time").innerText = "Sync: " + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+  if(!snapshot.exists()) {
+    allPanelData = [];
+    renderList([]);
+    updateStats(0, 0);
+    Object.values(markers).forEach(m => map.removeLayer(m));
+    return;
+  }
+
+  const rawData = snapshot.val();
+  allPanelData = Object.entries(rawData).map(([id, val]) => ({ id, val }))
+    .sort((a,b) => parseInt(a.id.split(' ')[1]) - parseInt(b.id.split(' ')[1]));
+
+  let total = 0, on = 0;
+  const bounds = L.latLngBounds();
+
+  allPanelData.forEach(({id, val}) => {
+    const isPanelOn = val.status_panel === "NYALA";
+    total++; if(isPanelOn) on++;
 
     const lat = parseFloat(val.latitude);
     const lon = parseFloat(val.longitude);
@@ -505,11 +563,11 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
         const markerColor = isPanelOn ? '#f59e0b' : '#94a3b8';
         const customIcon = L.divIcon({
             html: `<div style="background: white; border-radius: 50%; padding: 4px; border: 2px solid ${markerColor}; box-shadow: 0 2px 5px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center;">
-                    <svg style="width:14px; height:14px; fill:${markerColor}" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+                    <svg style="width:12px; height:12px; fill:${markerColor}" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
                    </div>`,
             className: 'custom-marker',
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
         });
 
         if (markers[id]) {
@@ -518,70 +576,15 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
         } else {
             markers[id] = L.marker([lat, lon], { icon: customIcon }).addTo(map);
         }
-        
-        markers[id].bindPopup(`<b>${val.nama_panel}</b><br>ID: ${id}<br>Status: ${val.status_panel}`);
+        markers[id].bindPopup(`<b>${val.nama_panel}</b><br>ID: ${id}`);
         bounds.extend([lat, lon]);
     }
-
-    const card = document.createElement("div");
-    card.className = `device-card ${visual.class} ${isPanelOn ? 'status-on' : ''}`;
-    card.innerHTML = `
-      ${visual.icon}
-      <div class="device-header">
-        <div class="bulb-container">${bulbSvg}</div>
-        <div class="device-title">
-          <h4>${val.nama_panel || 'Panel PJU'}</h4>
-          <span class="id-tag">${val.id_panel || id}</span>
-        </div>
-      </div>
-
-      <div class="mode-toggle">
-        <button class="mode-btn ${isAuto ? 'active' : ''}" onclick="setMode('${id}', 'OTOMATIS')">OTOMATIS</button>
-        <button class="mode-btn ${!isAuto ? 'active' : ''}" onclick="setMode('${id}', 'MANUAL')">MANUAL</button>
-      </div>
-      
-      <div class="coordinate-box" onclick="map.setView([${val.latitude}, ${val.longitude}], 18)" style="cursor:pointer" title="Lihat di peta">
-        <span><b>LAT</b> ${val.latitude}</span>
-        <span><b>LON</b> ${val.longitude}</span>
-      </div>
-
-      <div class="data-grid">
-        <div class="data-box">
-          <span class="data-label">Cuaca</span>
-          <span class="data-value">${visual.label}</span>
-        </div>
-        <div class="data-box">
-          <span class="data-label">Suhu</span>
-          <span class="data-value">${val.suhu || 0}°C</span>
-        </div>
-        <div class="data-box">
-          <span class="data-label">Visibility</span>
-          <span class="data-value">${((val.jarak_pandang || 0) / 1000).toFixed(1)} km</span>
-        </div>
-        <div class="data-box">
-          <span class="data-label">Awan</span>
-          <span class="data-value">${val.awan || 0}%</span>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="btn btn-main" 
-          onclick="togglePanel('${id}','${isPanelOn ? 'MATI' : 'NYALA'}')"
-          ${isAuto ? 'disabled' : ''}>
-          ${isAuto ? 'ESP32 Control' : (isPanelOn ? 'Matikan' : 'Nyalakan')}
-        </button>
-        <button class="btn btn-danger" onclick="hapus('${id}')">✕</button>
-      </div>
-      <div style="margin-top:12px; text-align:center;">
-        <span style="font-size:9px; color:var(--text-light); font-weight:700; display:block;">Log: ${val.update_terakhir || '--:--'}</span>
-      </div>
-    `;
-    list.appendChild(card);
   });
-  
-  if(total > 0) map.fitBounds(bounds, { padding: [40, 40] });
 
+  // Keep search/filter persistent during updates
+  filterPanels();
   updateStats(total, on);
+  if(total > 0 && !document.getElementById("searchInput").value) map.fitBounds(bounds, { padding: [50, 50] });
 });
 
 function updateStats(t, o) {
