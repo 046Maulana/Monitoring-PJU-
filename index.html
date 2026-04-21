@@ -2,14 +2,13 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Smart PJU | Dashboard Panel Solid</title>
+  <title>Smart PJU | Dashboard Panel Modern</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   
-  <!-- Leaflet Maps CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
@@ -29,8 +28,6 @@
       --bg-clouds: #e2e8f0;   
       --bg-rain: #bae6fd;     
       --bg-storm: #c7d2fe;    
-      --bg-fog: #f1f5f9;      
-      --bg-drizzle: #ccf1ff;  
     }
 
     * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -48,7 +45,6 @@
       letter-spacing: -0.02em;
     }
 
-    /* Layout Structure */
     .dashboard-wrapper {
       display: flex;
       flex-direction: column;
@@ -74,7 +70,6 @@
       position: relative;
     }
 
-    /* Sidebar Styling */
     .sidebar {
       width: 360px;
       background: var(--sidebar-bg);
@@ -107,13 +102,6 @@
       background: #f8fafc;
       font-size: 13px;
       outline: none;
-      transition: all 0.2s;
-    }
-
-    .search-input:focus {
-      border-color: var(--primary);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
     .search-icon {
@@ -132,7 +120,6 @@
       background: #f8fafc;
     }
 
-    /* Map Area */
     .map-container {
       flex: 1;
       position: relative;
@@ -144,9 +131,9 @@
       flex: 1;
       width: 100%;
       z-index: 1;
+      cursor: crosshair; /* Memberikan tanda visual bahwa peta bisa diklik */
     }
 
-    /* Stats on Map */
     .map-overlay-stats {
       position: absolute;
       top: 20px;
@@ -169,7 +156,6 @@
       flex-direction: column;
     }
 
-    /* UI Components */
     .brand h1 { margin: 0; font-size: 1.1rem; font-weight: 700; }
 
     .btn-primary {
@@ -181,14 +167,11 @@
       font-weight: 600;
       font-size: 12px;
       cursor: pointer;
-      transition: all 0.2s;
     }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
 
     .stat-label { font-size: 9px; color: var(--text-light); font-weight: 700; text-transform: uppercase; }
     .stat-value { font-size: 20px; font-weight: 700; color: var(--text-dark); }
 
-    /* Card Adjustments */
     .device-card {
       background: white;
       border-radius: var(--radius-md);
@@ -201,7 +184,6 @@
       overflow: hidden;
       margin-bottom: 16px;
     }
-    .device-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
 
     .bg-icon {
       position: absolute;
@@ -266,10 +248,8 @@
 
     @media (max-width: 850px) {
       .main-content { flex-direction: column; overflow-y: auto; }
-      .sidebar { width: 100%; border-right: none; border-top: 1px solid #e2e8f0; height: auto; order: 2; overflow-y: visible; }
+      .sidebar { width: 100%; border-right: none; border-top: 1px solid #e2e8f0; height: auto; order: 2; }
       .map-container { height: 350px; order: 1; flex: none; }
-      .map-overlay-stats { top: 10px; left: 10px; right: 10px; }
-      .panel-list-container { overflow-y: visible; }
     }
   </style>
 </head>
@@ -285,7 +265,6 @@
   </nav>
 
   <div class="main-content">
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -305,15 +284,14 @@
       </div>
     </aside>
 
-    <!-- Map Area -->
     <main class="map-container">
       <div class="map-overlay-stats">
         <div class="stat-mini-card">
-          <span class="stat-label">Total</span>
+          <span class="stat-label">Total Unit</span>
           <span class="stat-value" id="count-total">0</span>
         </div>
         <div class="stat-mini-card">
-          <span class="stat-label" style="color: var(--warning)">Aktif</span>
+          <span class="stat-label" style="color: var(--warning)">Lampu Nyala</span>
           <span class="stat-value" id="count-on" style="color: var(--warning)">0</span>
         </div>
       </div>
@@ -322,15 +300,14 @@
   </div>
 </div>
 
-<!-- Modal Tambah -->
 <div class="modal-overlay" id="modalAdd">
   <div class="modal-content">
-    <h3 style="margin:0 0 8px 0;">Tambah Unit PJU</h3>
-    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Klik titik di peta atau isi koordinat manual.</p>
+    <h3 style="margin:0 0 8px 0;">Registrasi Unit PJU</h3>
+    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Silahkan klik area pada peta untuk mengambil koordinat otomatis atau isi manual.</p>
     
     <div style="margin-bottom:16px">
       <label style="font-size:10px; font-weight:800; color: var(--text-light);">NAMA LOKASI</label>
-      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Lampu Blok A-01">
+      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Lampu Depan Gapura">
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px">
       <div>
@@ -342,14 +319,13 @@
         <input type="text" id="lon" class="form-input" placeholder="112.xxx">
       </div>
     </div>
-    <button class="btn-primary" style="width:100%; padding: 14px;" id="btnSimpan" onclick="kirimData()">Simpan Perangkat</button>
-    <button onclick="toggleModal(false)" style="width:100%; border:none; background:none; margin-top:12px; color:var(--text-light); font-size: 12px; cursor:pointer">Batal</button>
+    <button class="btn-primary" style="width:100%; padding: 14px;" id="btnSimpan" onclick="kirimData()">Daftarkan Unit</button>
+    <button onclick="toggleModal(false)" style="width:100%; border:none; background:none; margin-top:12px; color:var(--text-light); font-size: 12px; cursor:pointer">Batalkan</button>
   </div>
 </div>
 
 <div id="toast" class="toast">Pesan Sistem</div>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script type="module">
@@ -371,23 +347,23 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const weatherKey = "2e87f812c1037ab6904d4b234b6158d7";
 
-let toastTimeout;
 let markers = {}; 
 let allPanelData = []; 
+const defaultCenter = [-7.4478, 112.7183]; // Sidoarjo
 
-// Map Setup
-const map = L.map('map', { zoomControl: false }).setView([-7.4478, 112.7183], 12); 
+const map = L.map('map', { zoomControl: false }).setView(defaultCenter, 13);
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
 L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
+// Fitur klik peta untuk ambil koordinat
 map.on('click', function(e) {
     const { lat, lng } = e.latlng;
     document.getElementById('lat').value = lat.toFixed(6);
     document.getElementById('lon').value = lng.toFixed(6);
-    showToast("Koordinat dipilih");
+    showToast("📍 Lokasi dipilih");
     toggleModal(true); 
 });
 
@@ -395,8 +371,7 @@ const weatherConfigs = {
   'Clear': { label: 'Cerah', class: 'card-clear', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` },
   'Clouds': { label: 'Berawan', class: 'card-clouds', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>` },
   'Rain': { label: 'Hujan', class: 'card-rain', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 13v8M8 13v8M12 15v8M20 16.58A5 5 0 0 0 18 10h-1.26A8 8 0 1 0 4 15.25"/></svg>` },
-  'Thunderstorm': { label: 'Badai', class: 'card-thunderstorm', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg>` },
-  'Mist': { label: 'Kabut', class: 'card-atmosphere', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="9" y1="16" x2="15" y2="16"/></svg>` }
+  'Thunderstorm': { label: 'Badai', class: 'card-thunderstorm', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg>` }
 };
 
 const bulbSvg = `<svg class="bulb-svg" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>`;
@@ -405,12 +380,10 @@ window.toggleModal = (s) => document.getElementById("modalAdd").style.display = 
 
 function showToast(m) {
   const t = document.getElementById("toast");
-  clearTimeout(toastTimeout);
   t.innerText = m; t.classList.add("show");
-  toastTimeout = setTimeout(() => t.classList.remove("show"), 3000);
+  setTimeout(() => t.classList.remove("show"), 3000);
 }
 
-// Search Logic
 window.filterPanels = () => {
   const query = document.getElementById("searchInput").value.toLowerCase();
   const filtered = allPanelData.filter(p => 
@@ -426,12 +399,11 @@ window.kirimData = async function() {
   const lon = document.getElementById("lon").value;
   const btn = document.getElementById("btnSimpan");
 
-  if(!nama || !lat || !lon) return showToast("Mohon isi semua kolom!");
-  btn.innerText = "Proses..."; btn.disabled = true;
+  if(!nama || !lat || !lon) return showToast("⚠️ Isi semua data!");
+  btn.innerText = "Mendaftarkan..."; btn.disabled = true;
 
   try {
-    const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherKey}&units=metric`;
-    const res = await fetch(weatherApiUrl);
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherKey}&units=metric`);
     const data = await res.json();
 
     const snap = await get(ref(db, "panelPJU"));
@@ -457,16 +429,14 @@ window.kirimData = async function() {
     });
 
     toggleModal(false);
-    showToast(`${customID} terdaftar.`);
+    showToast(`✅ Berhasil: ${customID}`);
     document.getElementById("namaPanel").value = "";
-    document.getElementById("lat").value = "";
-    document.getElementById("lon").value = "";
-  } catch (e) { showToast("Gagal registrasi"); } 
-  finally { btn.innerText = "Simpan Perangkat"; btn.disabled = false; }
+  } catch (e) { showToast("❌ Gagal simpan"); } 
+  finally { btn.innerText = "Daftarkan Unit"; btn.disabled = false; }
 }
 
 window.togglePanel = (id, s) => { 
-  update(ref(db, "panelPJU/" + id), { status_panel: s, update_terakhir: "Manual Dashboard" });
+  update(ref(db, "panelPJU/" + id), { status_panel: s, update_terakhir: "Update Manual" });
 }
 
 window.setMode = (id, m) => {
@@ -474,14 +444,13 @@ window.setMode = (id, m) => {
 }
 
 window.hapus = (id) => { 
-  if(confirm(`Hapus ${id}?`)) {
+  if(confirm(`Hapus unit ${id}?`)) {
     if(markers[id]) map.removeLayer(markers[id]);
     remove(ref(db, "panelPJU/" + id));
-    showToast("Dihapus.");
+    showToast("🗑️ Unit dihapus");
   }
 }
 
-// Side List Render
 function renderList(filteredData) {
   const list = document.getElementById("listData");
   const countLabel = document.getElementById("result-count");
@@ -489,7 +458,7 @@ function renderList(filteredData) {
   countLabel.innerText = `${filteredData.length} Unit`;
 
   if(filteredData.length === 0) {
-    list.innerHTML = `<div style="text-align: center; padding: 40px 10px; color: var(--text-light); font-size: 12px;">Tidak ada panel ditemukan.</div>`;
+    list.innerHTML = `<div style="text-align: center; padding: 40px 10px; color: var(--text-light); font-size: 12px;">Data tidak ditemukan.</div>`;
     return;
   }
 
@@ -513,39 +482,21 @@ function renderList(filteredData) {
         <button class="mode-btn ${isAuto ? 'active' : ''}" onclick="setMode('${id}', 'OTOMATIS')">OTOMATIS</button>
         <button class="mode-btn ${!isAuto ? 'active' : ''}" onclick="setMode('${id}', 'MANUAL')">MANUAL</button>
       </div>
-      <div class="coordinate-box" onclick="map.setView([${val.latitude}, ${val.longitude}], 18)" style="cursor:pointer" title="Lihat di peta">
+      <div class="coordinate-box" onclick="map.flyTo([${val.latitude}, ${val.longitude}], 18)" style="cursor:pointer">
         <span><b>LAT</b> ${val.latitude}</span>
         <span><b>LON</b> ${val.longitude}</span>
       </div>
-      
-      <!-- Grid Data Lengkap: Cuaca, Suhu, Visibility, Awan -->
       <div class="data-grid">
-        <div class="data-box">
-          <span class="data-label">Cuaca</span>
-          <span class="data-value">${visual.label}</span>
-        </div>
-        <div class="data-box">
-          <span class="data-label">Suhu</span>
-          <span class="data-value">${val.suhu || 0}°C</span>
-        </div>
-        <div class="data-box">
-          <span class="data-label">Visibility</span>
-          <span class="data-value">${((val.jarak_pandang || 0) / 1000).toFixed(1)} km</span>
-        </div>
-        <div class="data-box">
-          <span class="data-label">Awan</span>
-          <span class="data-value">${val.awan || 0}%</span>
-        </div>
+        <div class="data-box"><span class="data-label">Cuaca</span><span class="data-value">${visual.label}</span></div>
+        <div class="data-box"><span class="data-label">Suhu</span><span class="data-value">${val.suhu || 0}°C</span></div>
+        <div class="data-box"><span class="data-label">Jarak Pandang</span><span class="data-value">${((val.jarak_pandang || 0) / 1000).toFixed(1)} km</span></div>
+        <div class="data-box"><span class="data-label">Awan</span><span class="data-value">${val.awan || 0}%</span></div>
       </div>
-
       <div class="actions">
         <button class="btn btn-main" onclick="togglePanel('${id}','${isPanelOn ? 'MATI' : 'NYALA'}')" ${isAuto ? 'disabled' : ''}>
-          ${isAuto ? 'ESP32 Control' : (isPanelOn ? 'Matikan' : 'Nyalakan')}
+          ${isAuto ? 'Sistem Otomatis' : (isPanelOn ? 'Matikan' : 'Nyalakan')}
         </button>
         <button class="btn btn-danger" onclick="hapus('${id}')">✕</button>
-      </div>
-      <div style="margin-top:10px; text-align:center;">
-        <span style="font-size:8px; color:var(--text-light); font-weight:700;">Update: ${val.update_terakhir || '--:--'}</span>
       </div>
     `;
     list.appendChild(card);
@@ -553,22 +504,22 @@ function renderList(filteredData) {
 }
 
 onValue(ref(db, "panelPJU"), (snapshot) => {
-  document.getElementById("last-sync-time").innerText = "Sync: " + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById("last-sync-time").innerText = "Sync: " + new Date().toLocaleTimeString();
 
   if(!snapshot.exists()) {
     allPanelData = [];
     renderList([]);
     updateStats(0, 0);
     Object.values(markers).forEach(m => map.removeLayer(m));
+    map.setView(defaultCenter, 13);
     return;
   }
 
   const rawData = snapshot.val();
-  allPanelData = Object.entries(rawData).map(([id, val]) => ({ id, val }))
-    .sort((a,b) => parseInt(a.id.split(' ')[1]) - parseInt(b.id.split(' ')[1]));
+  allPanelData = Object.entries(rawData).map(([id, val]) => ({ id, val }));
 
   let total = 0, on = 0;
-  const bounds = L.latLngBounds();
+  const points = [];
 
   allPanelData.forEach(({id, val}) => {
     const isPanelOn = val.status_panel === "NYALA";
@@ -578,33 +529,35 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
     const lon = parseFloat(val.longitude);
     
     if(!isNaN(lat) && !isNaN(lon)) {
+        points.push([lat, lon]);
         const markerColor = isPanelOn ? '#f59e0b' : '#94a3b8';
         const customIcon = L.divIcon({
-            html: `<div style="background: white; border-radius: 50%; padding: 4px; border: 2px solid ${markerColor}; box-shadow: 0 2px 5px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center;">
-                    <svg style="width:12px; height:12px; fill:${markerColor}" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+            html: `<div style="background: white; border-radius: 50%; padding: 4px; border: 2px solid ${markerColor}; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center;">
+                    <svg style="width:14px; height:14px; fill:${markerColor}" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                    </div>`,
             className: 'custom-marker',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
+            iconSize: [26, 26],
+            iconAnchor: [13, 13]
         });
 
         if (markers[id]) {
-            markers[id].setLatLng([lat, lon]);
-            markers[id].setIcon(customIcon);
+            markers[id].setLatLng([lat, lon]).setIcon(customIcon);
         } else {
             markers[id] = L.marker([lat, lon], { icon: customIcon }).addTo(map);
         }
-        markers[id].bindPopup(`<b>${val.nama_panel}</b><br>Status: ${val.status_panel}`);
-        bounds.extend([lat, lon]);
+        markers[id].bindPopup(`<b>${val.nama_panel}</b><br>ID: ${id}<br>Status: ${val.status_panel}`);
     }
   });
 
   filterPanels();
   updateStats(total, on);
   
-  // Fit bounds hanya saat data pertama kali dimuat
-  if(total > 0 && !document.getElementById("searchInput").value && Object.keys(markers).length === total) {
-     // map.fitBounds(bounds, { padding: [50, 50] }); 
+  // LOGIKA FOKUS MAPS:
+  if(points.length > 0) {
+      const bounds = L.latLngBounds(points);
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+  } else {
+      map.setView(defaultCenter, 13);
   }
 });
 
