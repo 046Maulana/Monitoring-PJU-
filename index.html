@@ -188,7 +188,7 @@
     .stat-label { font-size: 9px; color: var(--text-light); font-weight: 700; text-transform: uppercase; }
     .stat-value { font-size: 20px; font-weight: 700; color: var(--text-dark); }
 
-    /* Card Adjustments for Sidebar */
+    /* Card Adjustments */
     .device-card {
       background: white;
       border-radius: var(--radius-md);
@@ -201,7 +201,7 @@
       overflow: hidden;
       margin-bottom: 16px;
     }
-    .device-card:hover { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+    .device-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
 
     .bg-icon {
       position: absolute;
@@ -257,7 +257,6 @@
     .card-rain { background-color: var(--bg-rain); }
     .card-thunderstorm { background-color: var(--bg-storm); }
 
-    /* Modals & Toast */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
     .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
     .form-input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; margin-top: 6px; outline: none; font-size: 14px; }
@@ -265,11 +264,10 @@
     .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-dark); color: white; padding: 12px 24px; border-radius: 12px; font-size: 13px; font-weight: 600; transition: all 0.3s; z-index: 3000; opacity: 0; }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-    /* Mobile Responsive Logic */
     @media (max-width: 850px) {
       .main-content { flex-direction: column; overflow-y: auto; }
       .sidebar { width: 100%; border-right: none; border-top: 1px solid #e2e8f0; height: auto; order: 2; overflow-y: visible; }
-      .map-container { height: 300px; order: 1; flex: none; }
+      .map-container { height: 350px; order: 1; flex: none; }
       .map-overlay-stats { top: 10px; left: 10px; right: 10px; }
       .panel-list-container { overflow-y: visible; }
     }
@@ -287,7 +285,7 @@
   </nav>
 
   <div class="main-content">
-    <!-- Sidebar Kiri: Daftar & Filter -->
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -302,12 +300,12 @@
       
       <div class="panel-list-container" id="listData">
         <div style="text-align: center; padding: 40px 20px; color: var(--text-light);">
-          <p style="font-size: 12px;">Menghubungkan ke server...</p>
+          <p style="font-size: 12px;">Memuat data...</p>
         </div>
       </div>
     </aside>
 
-    <!-- Area Tengah/Utama: Map -->
+    <!-- Map Area -->
     <main class="map-container">
       <div class="map-overlay-stats">
         <div class="stat-mini-card">
@@ -328,11 +326,11 @@
 <div class="modal-overlay" id="modalAdd">
   <div class="modal-content">
     <h3 style="margin:0 0 8px 0;">Tambah Unit PJU</h3>
-    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Isi detail lokasi secara manual atau klik titik di peta.</p>
+    <p style="font-size: 11px; color: var(--text-light); margin-bottom: 20px;">Klik titik di peta atau isi koordinat manual.</p>
     
     <div style="margin-bottom:16px">
       <label style="font-size:10px; font-weight:800; color: var(--text-light);">NAMA LOKASI</label>
-      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Jl. Ahmad Yani - 01">
+      <input type="text" id="namaPanel" class="form-input" placeholder="Contoh: Lampu Blok A-01">
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px">
       <div>
@@ -345,7 +343,7 @@
       </div>
     </div>
     <button class="btn-primary" style="width:100%; padding: 14px;" id="btnSimpan" onclick="kirimData()">Simpan Perangkat</button>
-    <button onclick="toggleModal(false)" style="width:100%; border:none; background:none; margin-top:12px; color:var(--text-light); font-size: 12px; cursor:pointer">Batalkan</button>
+    <button onclick="toggleModal(false)" style="width:100%; border:none; background:none; margin-top:12px; color:var(--text-light); font-size: 12px; cursor:pointer">Batal</button>
   </div>
 </div>
 
@@ -375,21 +373,21 @@ const weatherKey = "2e87f812c1037ab6904d4b234b6158d7";
 
 let toastTimeout;
 let markers = {}; 
-let allPanelData = []; // Simpan data global untuk filter
+let allPanelData = []; 
 
-// Map Init
+// Map Setup
 const map = L.map('map', { zoomControl: false }).setView([-7.4478, 112.7183], 12); 
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
 L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OSM'
+    attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
 map.on('click', function(e) {
     const { lat, lng } = e.latlng;
     document.getElementById('lat').value = lat.toFixed(6);
     document.getElementById('lon').value = lng.toFixed(6);
-    showToast("Koordinat disalin dari peta");
+    showToast("Koordinat dipilih");
     toggleModal(true); 
 });
 
@@ -412,13 +410,14 @@ function showToast(m) {
   toastTimeout = setTimeout(() => t.classList.remove("show"), 3000);
 }
 
-// Global Filter Function
+// Search Logic
 window.filterPanels = () => {
   const query = document.getElementById("searchInput").value.toLowerCase();
-  renderList(allPanelData.filter(p => 
+  const filtered = allPanelData.filter(p => 
     p.val.nama_panel.toLowerCase().includes(query) || 
     p.id.toLowerCase().includes(query)
-  ));
+  );
+  renderList(filtered);
 };
 
 window.kirimData = async function() {
@@ -427,9 +426,8 @@ window.kirimData = async function() {
   const lon = document.getElementById("lon").value;
   const btn = document.getElementById("btnSimpan");
 
-  if(!nama || !lat || !lon) return showToast("Lengkapi data!");
-  btn.innerText = "Menyimpan...";
-  btn.disabled = true;
+  if(!nama || !lat || !lon) return showToast("Mohon isi semua kolom!");
+  btn.innerText = "Proses..."; btn.disabled = true;
 
   try {
     const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherKey}&units=metric`;
@@ -463,7 +461,7 @@ window.kirimData = async function() {
     document.getElementById("namaPanel").value = "";
     document.getElementById("lat").value = "";
     document.getElementById("lon").value = "";
-  } catch (e) { showToast("Gagal simpan data"); } 
+  } catch (e) { showToast("Gagal registrasi"); } 
   finally { btn.innerText = "Simpan Perangkat"; btn.disabled = false; }
 }
 
@@ -483,7 +481,7 @@ window.hapus = (id) => {
   }
 }
 
-// Render the side list
+// Side List Render
 function renderList(filteredData) {
   const list = document.getElementById("listData");
   const countLabel = document.getElementById("result-count");
@@ -491,7 +489,7 @@ function renderList(filteredData) {
   countLabel.innerText = `${filteredData.length} Unit`;
 
   if(filteredData.length === 0) {
-    list.innerHTML = `<div style="text-align: center; padding: 40px 10px; color: var(--text-light); font-size: 12px;">Data tidak ditemukan.</div>`;
+    list.innerHTML = `<div style="text-align: center; padding: 40px 10px; color: var(--text-light); font-size: 12px;">Tidak ada panel ditemukan.</div>`;
     return;
   }
 
@@ -515,19 +513,39 @@ function renderList(filteredData) {
         <button class="mode-btn ${isAuto ? 'active' : ''}" onclick="setMode('${id}', 'OTOMATIS')">OTOMATIS</button>
         <button class="mode-btn ${!isAuto ? 'active' : ''}" onclick="setMode('${id}', 'MANUAL')">MANUAL</button>
       </div>
-      <div class="coordinate-box" onclick="map.setView([${val.latitude}, ${val.longitude}], 18)" style="cursor:pointer">
+      <div class="coordinate-box" onclick="map.setView([${val.latitude}, ${val.longitude}], 18)" style="cursor:pointer" title="Lihat di peta">
         <span><b>LAT</b> ${val.latitude}</span>
         <span><b>LON</b> ${val.longitude}</span>
       </div>
+      
+      <!-- Grid Data Lengkap: Cuaca, Suhu, Visibility, Awan -->
       <div class="data-grid">
-        <div class="data-box"><span class="data-label">Cuaca</span><span class="data-value">${visual.label}</span></div>
-        <div class="data-box"><span class="data-label">Suhu</span><span class="data-value">${val.suhu || 0}°C</span></div>
+        <div class="data-box">
+          <span class="data-label">Cuaca</span>
+          <span class="data-value">${visual.label}</span>
+        </div>
+        <div class="data-box">
+          <span class="data-label">Suhu</span>
+          <span class="data-value">${val.suhu || 0}°C</span>
+        </div>
+        <div class="data-box">
+          <span class="data-label">Visibility</span>
+          <span class="data-value">${((val.jarak_pandang || 0) / 1000).toFixed(1)} km</span>
+        </div>
+        <div class="data-box">
+          <span class="data-label">Awan</span>
+          <span class="data-value">${val.awan || 0}%</span>
+        </div>
       </div>
+
       <div class="actions">
         <button class="btn btn-main" onclick="togglePanel('${id}','${isPanelOn ? 'MATI' : 'NYALA'}')" ${isAuto ? 'disabled' : ''}>
           ${isAuto ? 'ESP32 Control' : (isPanelOn ? 'Matikan' : 'Nyalakan')}
         </button>
         <button class="btn btn-danger" onclick="hapus('${id}')">✕</button>
+      </div>
+      <div style="margin-top:10px; text-align:center;">
+        <span style="font-size:8px; color:var(--text-light); font-weight:700;">Update: ${val.update_terakhir || '--:--'}</span>
       </div>
     `;
     list.appendChild(card);
@@ -576,15 +594,18 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
         } else {
             markers[id] = L.marker([lat, lon], { icon: customIcon }).addTo(map);
         }
-        markers[id].bindPopup(`<b>${val.nama_panel}</b><br>ID: ${id}`);
+        markers[id].bindPopup(`<b>${val.nama_panel}</b><br>Status: ${val.status_panel}`);
         bounds.extend([lat, lon]);
     }
   });
 
-  // Keep search/filter persistent during updates
   filterPanels();
   updateStats(total, on);
-  if(total > 0 && !document.getElementById("searchInput").value) map.fitBounds(bounds, { padding: [50, 50] });
+  
+  // Fit bounds hanya saat data pertama kali dimuat
+  if(total > 0 && !document.getElementById("searchInput").value && Object.keys(markers).length === total) {
+     // map.fitBounds(bounds, { padding: [50, 50] }); 
+  }
 });
 
 function updateStats(t, o) {
