@@ -245,6 +245,7 @@
     .data-box { background: white; padding: 8px; border-radius: 10px; border: 1px solid #f1f5f9; }
     .data-label { display: block; font-size: 8px; font-weight: 700; color: var(--text-light); text-transform: uppercase; }
     .data-value { font-weight: 700; font-size: 12px; }
+    .data-value-sub { font-size: 9px; font-weight: 500; color: var(--text-light); display: block; }
 
     .actions { display: flex; gap: 8px; z-index: 1; }
     .btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 700; font-size: 11px; cursor: pointer; }
@@ -256,6 +257,8 @@
     .card-clouds { background-color: var(--bg-clouds); }
     .card-rain { background-color: var(--bg-rain); }
     .card-thunderstorm { background-color: var(--bg-storm); }
+    .card-atmosphere { background-color: var(--bg-fog); }
+    .card-drizzle { background-color: var(--bg-drizzle); }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
     .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
@@ -375,7 +378,6 @@ let toastTimeout;
 let markers = {}; 
 let allPanelData = []; 
 
-// Map Setup - Default Sidoarjo
 const sidoarjoCoord = [-7.4478, 112.7183];
 const map = L.map('map', { zoomControl: false }).setView(sidoarjoCoord, 12); 
 L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -392,13 +394,52 @@ map.on('click', function(e) {
     toggleModal(true); 
 });
 
-const weatherConfigs = {
-  'Clear': { label: 'Cerah', class: 'card-clear', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` },
-  'Clouds': { label: 'Berawan', class: 'card-clouds', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>` },
-  'Rain': { label: 'Hujan', class: 'card-rain', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 13v8M8 13v8M12 15v8M20 16.58A5 5 0 0 0 18 10h-1.26A8 8 0 1 0 4 15.25"/></svg>` },
-  'Thunderstorm': { label: 'Badai', class: 'card-thunderstorm', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg>` },
-  'Mist': { label: 'Kabut', class: 'card-atmosphere', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="9" y1="16" x2="15" y2="16"/></svg>` }
-};
+/**
+ * Mendapatkan Visual Cuaca Berdasarkan ID (OpenWeather Standard)
+ * Menambahkan arti atau deskripsi kode cuaca
+ */
+function getWeatherVisualById(weatherId) {
+    // 800: Clear
+    if (weatherId == 800) {
+        return { label: 'Cerah', meaning: 'Langit Terang', class: 'card-clear', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` };
+    }
+    
+    // 2xx: Thunderstorm
+    if (weatherId >= 200 && weatherId < 300) {
+        return { label: 'Badai', meaning: 'Hujan & Petir', class: 'card-thunderstorm', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg>` };
+    }
+
+    // 3xx: Drizzle
+    if (weatherId >= 300 && weatherId < 400) {
+        return { label: 'Gerimis', meaning: 'Hujan Sangat Ringan', class: 'card-drizzle', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 19l2 2m4-2l2 2m-4-6l2 2m0-6l2 2M20 16.58A5 5 0 0 0 18 10h-1.26A8 8 0 1 0 4 15.25"/></svg>` };
+    }
+
+    // 5xx: Rain
+    if (weatherId >= 500 && weatherId < 600) {
+        let label = 'Hujan';
+        let meaning = 'Hujan Sedang-Lebat';
+        if (weatherId < 510) { label = 'Hujan Ringan'; meaning = 'Tetesan Air'; }
+        return { label: label, meaning: meaning, class: 'card-rain', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 13v8M8 13v8M12 15v8M20 16.58A5 5 0 0 0 18 10h-1.26A8 8 0 1 0 4 15.25"/></svg>` };
+    }
+
+    // 7xx: Atmosphere (Fog, Mist, etc)
+    if (weatherId >= 700 && weatherId < 800) {
+        let meaning = 'Jarak Pandang Rendah';
+        if (weatherId == 701) meaning = 'Kabut Tipis (Mist)';
+        if (weatherId == 741) meaning = 'Kabut Tebal (Fog)';
+        return { label: 'Atmosferik', meaning: meaning, class: 'card-atmosphere', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="9" y1="16" x2="15" y2="16"/></svg>` };
+    }
+
+    // 80x: Clouds
+    if (weatherId > 800 && weatherId < 900) {
+        let meaning = 'Berawan';
+        if (weatherId == 801) meaning = 'Sedikit Berawan';
+        if (weatherId == 804) meaning = 'Sangat Mendung';
+        return { label: 'Berawan', meaning: meaning, class: 'card-clouds', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>` };
+    }
+
+    return { label: 'Normal', meaning: 'Kondisi Standar', class: 'card-clouds', icon: `<svg class="bg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>` };
+}
 
 const bulbSvg = `<svg class="bulb-svg" viewBox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>`;
 
@@ -411,7 +452,6 @@ function showToast(m) {
   toastTimeout = setTimeout(() => t.classList.remove("show"), 3000);
 }
 
-// Search Logic
 window.filterPanels = () => {
   const query = document.getElementById("searchInput").value.toLowerCase();
   const filtered = allPanelData.filter(p => 
@@ -448,6 +488,7 @@ window.kirimData = async function() {
       nama_panel: nama, 
       latitude: parseFloat(lat), 
       longitude: parseFloat(lon),
+      cuaca_id: data.weather?.[0]?.id || 800,
       cuaca: data.weather?.[0]?.main || 'Clear',
       suhu: Math.round(data.main?.temp || 0),
       jarak_pandang: data.visibility || 0,
@@ -477,13 +518,12 @@ window.setMode = (id, m) => {
 window.hapus = (id) => { 
   if(confirm(`Hapus ${id}?`)) {
     if(markers[id]) map.removeLayer(markers[id]);
-    delete markers[id]; // Bersihkan referensi marker
+    delete markers[id]; 
     remove(ref(db, "panelPJU/" + id));
     showToast("Dihapus.");
   }
 }
 
-// Side List Render
 function renderList(filteredData) {
   const list = document.getElementById("listData");
   const countLabel = document.getElementById("result-count");
@@ -498,7 +538,9 @@ function renderList(filteredData) {
   filteredData.forEach(({id, val}) => {
     const isPanelOn = val.status_panel === "NYALA";
     const isAuto = val.mode === "OTOMATIS";
-    const visual = weatherConfigs[val.cuaca] || weatherConfigs['Clouds'];
+    
+    // Ambil visual dan arti berdasarkan ID Cuaca
+    const visual = getWeatherVisualById(val.cuaca_id || 800);
     
     const card = document.createElement("div");
     card.className = `device-card ${visual.class} ${isPanelOn ? 'status-on' : ''}`;
@@ -520,22 +562,22 @@ function renderList(filteredData) {
         <span><b>LON</b> ${val.longitude}</span>
       </div>
       
-      <!-- Grid Data Lengkap: Cuaca, Suhu, Visibility, Awan -->
       <div class="data-grid">
         <div class="data-box">
-          <span class="data-label">Cuaca</span>
+          <span class="data-label">ID Cuaca (#${val.cuaca_id || 800})</span>
           <span class="data-value">${visual.label}</span>
+          <span class="data-value-sub">${visual.meaning}</span>
         </div>
         <div class="data-box">
           <span class="data-label">Suhu</span>
           <span class="data-value">${val.suhu || 0}°C</span>
         </div>
         <div class="data-box">
-          <span class="data-label">Visibility</span>
+          <span class="data-label">Jarak Pandang</span>
           <span class="data-value">${((val.jarak_pandang || 0) / 1000).toFixed(1)} km</span>
         </div>
         <div class="data-box">
-          <span class="data-label">Awan</span>
+          <span class="data-label">Kerapatan Awan</span>
           <span class="data-value">${val.awan || 0}%</span>
         </div>
       </div>
@@ -563,7 +605,6 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
     updateStats(0, 0);
     Object.values(markers).forEach(m => map.removeLayer(m));
     markers = {};
-    // Fokus ke Sidoarjo jika tidak ada data
     map.setView(sidoarjoCoord, 12);
     return;
   }
@@ -609,18 +650,14 @@ onValue(ref(db, "panelPJU"), (snapshot) => {
   filterPanels();
   updateStats(total, on);
   
-  // LOGIKA AUTO ZOOM/FOCUS:
   if (hasValidMarkers) {
-      // Jika hanya 1 marker, gunakan setView agar tidak terlalu zoom out/in
       if (total === 1) {
           const firstId = Object.keys(markers)[0];
           map.setView(markers[firstId].getLatLng(), 15);
       } else {
-          // Jika banyak marker, sesuaikan agar semua terlihat
           map.fitBounds(bounds, { padding: [50, 50] }); 
       }
   } else {
-      // Jika data ada tapi koordinat salah, default ke Sidoarjo
       map.setView(sidoarjoCoord, 12);
   }
 });
